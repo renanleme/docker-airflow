@@ -4,7 +4,7 @@
 # BUILD: docker build --rm -t puckel/docker-airflow .
 # SOURCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.7-slim-buster
+FROM python:3.7-buster
 LABEL maintainer="Puckel_"
 
 # Never prompt the user for choices on installation/configuration of packages
@@ -12,9 +12,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.10.9
+ARG AIRFLOW_VERSION=1.10.10
 ARG AIRFLOW_USER_HOME=/usr/local/airflow
-ARG AIRFLOW_DEPS=""
+ARG AIRFLOW_DEPS="gcp"
 ARG PYTHON_DEPS=""
 ENV AIRFLOW_HOME=${AIRFLOW_USER_HOME}
 
@@ -62,6 +62,10 @@ RUN set -ex \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
     && pip install 'redis==3.2' \
     && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
+    && export CLOUD_SDK_REPO="cloud-sdk-stretch" \
+    && echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+    && apt-get update -y && apt-get install google-cloud-sdk -y \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
@@ -75,6 +79,7 @@ RUN set -ex \
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
+
 
 RUN chown -R airflow: ${AIRFLOW_USER_HOME}
 

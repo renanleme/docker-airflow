@@ -1,22 +1,26 @@
 version: '2.1'
 services:
+    app:
+        image: dott-app:latest
+        depends_on:
+            - postgres
+        ports: 
+            - "5000:5000"
     redis:
         image: 'redis:5.0.5'
-        # command: redis-server --requirepass redispass
-
+        command: redis-server --requirepass redispass
     postgres:
         image: postgres:9.6
         environment:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
-        # Uncomment these lines to persist data on the local filesystem.
-            - PGDATA=/var/lib/postgresql/data/pgdata
-        # volumes:
-            - ./pgdata:/var/lib/postgresql/data/pgdata
-
+        volumes:
+            - ./postgres-entrypoint:/docker-entrypoint-initdb.d/
+        ports:
+            - "5432:5432"
     webserver:
-        image: puckel/docker-airflow:1.10.9
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - postgres
@@ -43,7 +47,7 @@ services:
             retries: 3
 
     flower:
-        image: puckel/docker-airflow:1.10.9
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - redis
@@ -55,7 +59,7 @@ services:
         command: flower
 
     scheduler:
-        image: puckel/docker-airflow:1.10.9
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - webserver
@@ -74,7 +78,7 @@ services:
         command: scheduler
 
     worker:
-        image: puckel/docker-airflow:1.10.9
+        image: puckel/docker-airflow:latest
         restart: always
         depends_on:
             - scheduler

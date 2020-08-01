@@ -1,0 +1,32 @@
+{
+    "RIDES_SPARK_CLUSTER_CONFIG": {
+        "SPARK_JAR_FOLDER": "/resources/jars",
+        "cluster-config": {
+            "image-version": "1.4",
+            "master-boot-disk-size": "20GB",
+            "master-boot-disk-type": "pd-ssd",
+            "master-machine-type": "n1-standard-1",
+            "num-masters": "1",
+            "num-workers": "2",
+            "properties": "spark-env:DOTT_ENVIRONMENT=live",
+            "region": "europe-west4",
+            "worker-boot-disk-size": "20GB",
+            "worker-boot-disk-type": "pd-ssd",
+            "worker-machine-type": "n1-standard-1"
+        },
+        "cluster-labels": {
+            "etl-name": "rides-cycle-ldw",
+            "etl-owner": "dott"
+        },
+        "job-config": {
+            "spark.jars.packages": "com.typesafe:config:1.4.0,org.apache.spark:spark-avro_2.11:2.4.3"
+        }
+    },
+    "RIDES_SPARK_EXECUTION_CONFIG": {
+        "gcp_key_path": "gcp_keys/",
+        "project_id": "prd-dott",
+        "spark_app_version": "2.11-0.1",
+        "spark_jar_folder": "/resources/jars",
+        "spark_task_id": "rides-spark-app"
+    }
+}
